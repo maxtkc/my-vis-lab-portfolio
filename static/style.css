@@ -48,11 +48,3 @@ img {
     grid-template-columns: repeat(auto-fill, minmax(15em, 1fr));
     gap: 1em;
 }
-
-.color-scheme {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    font: inherit;
-    font-size: 80%;
-}
