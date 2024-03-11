@@ -8,28 +8,6 @@ const navLinks = $$("nav a");
 const currentLink = navLinks.find(a => a.host === location.host && a.pathname === location.pathname)
 currentLink?.classList.add("current");
 
-let pages = [
-	{url: ".", title: "Home"},
-	{url: "cv", title: "Resume"},
-	{url: "projects", title: "Projects"},
-	{url: "contact", title: "Contact"},
-	{url: "https://github.com/maxtkc", title: "Github"},
-	// add the rest of your pages here
-];
-
-let nav = document.createElement("nav");
-document.body.prepend(nav);
-
-for (let p of pages) {
-  // Create link and add it to nav
-  let a = document.createElement("a");
-  a.href = p.url;
-  a.textContent = p.title;
-  a.classList.toggle("current", a.host === location.host && a.pathname === location.pathname);
-  a.target = a.host !== location.host ? "_blank" : "";
-  nav.append(a);
-}
-
 document.body.insertAdjacentHTML("afterbegin", `
 	<label class="color-scheme">
 		Theme:

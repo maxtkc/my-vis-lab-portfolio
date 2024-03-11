@@ -39,34 +39,6 @@ h2 {
     font-weight: 300
 }
 
-nav ul,
-nav li {
-    display: contents;
-}
-
-nav {
-    --border-color: oklch(50% 10% 200 / 40%);
-    display: flex;
-    margin-bottom: 1em;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.current {
-    border-bottom: 0.4em solid var(--border-color);
-}
-
-nav a {
-    flex: 1;
-    text-decoration: none;
-    color: inherit;
-    text-align: center;
-    padding: 0.5em;
-}
-
-nav a:hover {
-    border-bottom: 0.4em solid var(--color-accent);
-}
-
 img {
     max-width: 100%;
 }
