@@ -1,7 +1,8 @@
 <script>
     export let info = {};
     export let hLevel = 2;
-    let p = info;
+    let p;
+    $: p = info;
 </script>
 <style>
 article {
