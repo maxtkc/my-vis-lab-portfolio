@@ -6,6 +6,7 @@ let pages = [
 	{url: "./cv", title: "Resume"},
 	{url: "./projects", title: "Projects"},
 	{url: "./contact", title: "Contact"},
+	{url: "./meta", title: "Meta"},
 	{url: "https://github.com/maxtkc", title: "Github"},
 	// add the rest of your pages here
 ];
