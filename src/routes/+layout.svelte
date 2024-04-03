@@ -54,7 +54,6 @@
   }
 
   nav {
-    --border-color: oklch(50% 10% 200 / 40%);
     display: flex;
     margin-bottom: 1em;
     border-bottom: 1px solid var(--border-color);
