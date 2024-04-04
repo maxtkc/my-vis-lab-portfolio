@@ -203,7 +203,7 @@
       cx={ xScale(commit.datetime) }
       cy={ yScale(commit.hourFrac) }
       r="5"
-      fill="steelblue"
+      fill={isCommitSelected(commit) ? "red" : "steelblue" }
       on:mouseenter={evt => {
       hoveredIndex = index;
       cursor = {x: evt.x, y: evt.y};
