@@ -11,7 +11,7 @@
 	import { draw } from 'svelte/transition';
   import * as d3 from "d3";
   import RangeSlider from "svelte-range-slider-pips";
-  let values = [0, 1/3];
+  let values = [0, .2];
 	
 	// https://github.com/topojson/us-atlas#us-atlas-topojson
 	// const projection = geoAlbersUsa().scale(11300).translate([-3087.5, 1405])
@@ -37,7 +37,7 @@
 	const path = geoPath().projection(projection);
 
   const colorScale = d3.scaleThreshold()
-  .domain(d3.ticks(0, 1/3, 7))
+  .domain(d3.ticks(0, .5, 10))
   .range(d3.schemeBlues[7]);
 	
 	let states = [];
@@ -59,12 +59,14 @@
 		console.log({ us })
 
     us.objects["-"].geometries.forEach(geom => {
-      const rate = (geom.properties["2020_eviction"] + geom.properties["2021_eviction"] + geom.properties["2022_eviction"] + geom.properties["2023_eviction"])/ (geom.properties.pop * (1 - geom.properties.corp_own_rate));
-      geom.properties.eviction_rate = rate == Infinity || isNaN(rate) ? 0 : rate;
+      const eviction_rate = (geom.properties["2020_eviction"] + geom.properties["2021_eviction"] + geom.properties["2022_eviction"] + geom.properties["2023_eviction"])/ (geom.properties.pop * (1 - geom.properties.corp_own_rate));
+      geom.properties.eviction_rate = eviction_rate == Infinity || isNaN(eviction_rate) ? 0 : eviction_rate;
+      const corp_buy_rate = (geom.properties.buyer_bnk_ind_sum + geom.properties.buyer_bus_ind_sum + geom.properties.buyer_gse_ind_sum + geom.properties.buyer_llc_ind_sum + geom.properties.buyer_trst_ind_sum) / geom.properties.num_sales_transactions
+      geom.properties.corp_buy_rate = corp_buy_rate == Infinity || isNaN(corp_buy_rate) ? 0 : corp_buy_rate;
     })
 
     // console.log(us.objects["-"].geometries)
-    console.log(us.objects["-"].geometries.map(geom => geom.properties.eviction_rate))
+            console.log(us.objects["-"].geometries.map(geom => geom.properties.corp_buy_rate))
 		
 	})
 
@@ -97,7 +99,7 @@
 		{#each states as feature, i}
       <!--<path d={path(feature)} on:click={() => selected = feature} class="state" in:draw={{ delay: i * 50, duration: 1000 }} />-->
       {#if feature.properties.eviction_rate > values[0] & feature.properties.eviction_rate < values[1]}
-        <path fill={colorScale(feature.properties.eviction_rate)} d={path(feature)} on:click={() => selected = feature} class="state" />
+        <path fill={colorScale(feature.properties.corp_buy_rate)} d={path(feature)} on:click={() => selected = feature} class="state" />
       {/if}
 		{/each}
 				
@@ -122,7 +124,7 @@
 	{/each}
 </svg>
 
-<RangeSlider min={0} max={1/3} step={1/3/100} pipstep={1/3} range pushy pips float first=label last=label bind:values={values} />
+<RangeSlider min={0} max={.2} step={.2/100} pipstep={.2} range pushy pips float first=label last=label bind:values={values} />
 
 <h1>{values[0]}</h1>
 
