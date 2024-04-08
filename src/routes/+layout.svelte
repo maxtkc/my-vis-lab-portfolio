@@ -7,6 +7,7 @@
     { url: "./projects", title: "Projects" },
     { url: "./contact", title: "Contact" },
     { url: "./meta", title: "Meta" },
+    { url: "./fp2", title: "FP2" },
     { url: "https://github.com/maxtkc", title: "Github" },
     // add the rest of your pages here
   ];
