@@ -8,6 +8,7 @@
 	import { onMount } from 'svelte';
 	import * as topojson from 'topojson-client';
 	import { geoPath, geoAlbersUsa } from 'd3-geo';
+	import { tile } from 'd3-tile';
 	import { draw } from 'svelte/transition';
   import * as d3 from "d3";
   import RangeSlider from "svelte-range-slider-pips";
@@ -27,17 +28,25 @@
   //     // .rotate([98, 0])
   //     // .center([0, 38])
   //     // .scale(1000);
-  const projection = d3.geoConicEqualArea()
-      .parallels([42, 43])
-      .scale(200000)
-      .translate([480, 250])
-      .rotate([72, 0])
-      .center([.9, 42.33]);
+
+    // Working!
+    // const projection = d3.geoConicEqualArea()
+    //     .parallels([42, 43])
+    //     .scale(200000)
+    //     .translate([480, 250])
+    //     .rotate([72, 0])
+    //     .center([.9, 42.33]);
+
+    const projection = d3.geoMercator()
+    .center([-71.088, 42.312])
+    .scale(Math.pow(2, 19.8) / (2 * Math.PI))
+    .translate([600 / 2, 600 / 2])
 	
-	const path = geoPath().projection(projection);
+    // const path = geoPath().projection(projection);
+    const path = geoPath(projection);
 
   const colorScale = d3.scaleThreshold()
-  .domain(d3.ticks(0, .5, 10))
+  .domain(d3.ticks(0, .5, 7))
   .range(d3.schemeBlues[7]);
 	
 	let states = [];
@@ -85,6 +94,14 @@
 		// $: console.log({ states, counties, mesh })
   }
   $: console.log({ states })
+    let t = tile()
+    .size([600, 600])
+    .scale(projection.scale() * 2 * Math.PI)
+    .translate(projection([0, 0]))
+    console.log(t())
+    let tiles = t()
+    let url = (x, y, z) => `https://tiles.stadiamaps.com/tiles/stamen_toner/${z}/${x}/${y}.png`
+    let [tx, ty] = tiles.translate;
 </script>
 
 <svelte:head>
@@ -93,7 +110,25 @@
 
 <h1>FP2</h1>
 
-<svg style="border: 2px solid red" viewBox="0 0 975 610">
+<svg style="border: 2px solid red" viewBox="0 0 600 600">
+                {#each tiles as [x, y, z], i}
+                    <image xlink:href="{url(x, y, z)}" x="{Math.round((x + tx) * tiles.scale)}" y="{Math.round((y + ty) * tiles.scale)}" width="{tiles.scale}" height="{tiles.scale}" />
+                {/each}
+    <g>
+
+
+    <g>
+                <rect x={10} y={8} width={165} height={80} fill="white" stroke="black" />
+                {#each {length: 7} as _, i}
+                    <rect x={20 * i + 20} y={60} width={20} height={20} fill={colorScale(.5/7*i)} />
+                {/each}
+                <text fill="black" stroke="black" x={20} y={20} dy=".35em">Corporate Buy Rate</text>
+                <text fill="black" stroke="black" x={20} y={40} dy=".35em">0</text>
+                <text fill="black" stroke="black" x={138} y={40} dy=".35em">0.5</text>
+    </g>
+
+    </g>
+
 	<!-- State shapes -->
 	<g fill="white" stroke="black">
 		{#each states as feature, i}
@@ -124,9 +159,9 @@
 	{/each}
 </svg>
 
-<RangeSlider min={0} max={.2} step={.2/100} pipstep={.2} range pushy pips float first=label last=label bind:values={values} />
+<h3>Eviction Rate</h3>
 
-<h1>{values[0]}</h1>
+<RangeSlider min={0} max={.2} step={.2/100} pipstep={.2} range pushy pips float first=label last=label bind:values={values} />
 
 <div class="selectedName">{selected?.properties.name ?? ''}</div>
 	
