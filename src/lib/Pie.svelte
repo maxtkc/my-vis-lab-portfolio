@@ -70,11 +70,10 @@
     gap: 30px;
   }
 
-  svg:has(path:hover) {
-    path:not(:hover) {
+  svg:has(path:hover) path:not(:hover) {
       opacity: 50%;
-    }
   }
+
   path {
     transition: 300ms;
     cursor: pointer;

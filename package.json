@@ -18,7 +18,7 @@
     "prettier-plugin-svelte": "^3.2.2",
     "svelte": "^4.2.12",
     "svelte-range-slider-pips": "^2.3.1",
-    "vite": "^5.0.3"
+    "vite": "^5.2.8"
   },
   "type": "module",
   "dependencies": {
