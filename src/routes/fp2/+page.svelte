@@ -45,7 +45,7 @@
     // const path = geoPath().projection(projection);
     const path = geoPath(projection);
 
-  const colorScale = d3.scaleThreshold()
+  const colorScale = d3.scaleLinear()
   .domain(d3.ticks(0, .5, 7))
   .range(d3.schemeBlues[7]);
 	
@@ -157,6 +157,15 @@
 		<circle {cx} {cy} r={8} fill="white" />
 		<circle {cx} {cy} r={5} fill="black" />
 	{/each}
+
+        <g>
+            <rect x={302} y={575} width={295} height={22} fill="white" stroke="black" />
+            <text fill="black" stroke="black" x={307} y={590} font-size=".75em">
+                &copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>
+                &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a>
+                &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>
+            </text>
+    </g>
 </svg>
 
 <h3>Eviction Rate</h3>
@@ -166,7 +175,7 @@
 <div class="selectedName">{selected?.properties.name ?? ''}</div>
 	
 <style>
-	.county:hover {
+	.state:hover {
 		fill: hsl(0 0% 50% / 20%);
 	}
 	
@@ -175,4 +184,9 @@
 		margin-top: 8px;
 		font-size: 1.5rem;
 	}
+        .state {
+            opacity: 0.85;
+            transition-duration: 300ms;
+            transition-property: fill;
+        }
 </style>
