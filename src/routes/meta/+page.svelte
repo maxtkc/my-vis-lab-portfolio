@@ -194,24 +194,24 @@
 </dl>
 
 <svg viewBox="0 0 {width} {height}" bind:this={svg}>
-  <g transform="translate(0, {usableArea.bottom})" bind:this={xAxis} />
-  <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
-  <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
-  <g class="dots">
-  {#each commits as commit, index }
-    <circle
-      cx={ xScale(commit.datetime) }
-      cy={ yScale(commit.hourFrac) }
-      r="5"
-      fill={isCommitSelected(commit) ? "red" : "steelblue" }
-      on:mouseenter={evt => {
-      hoveredIndex = index;
-      cursor = {x: evt.x, y: evt.y};
-      }}
-      on:mouseleave={evt => hoveredIndex = -1}
-      />
-  {/each}
-  </g>
+    <g transform="translate(0, {usableArea.bottom})" bind:this={xAxis} />
+    <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
+    <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
+    <g class="dots">
+        {#each commits as commit, index }
+            <circle
+                cx={ xScale(commit.datetime) }
+                cy={ yScale(commit.hourFrac) }
+                r="5"
+                fill={isCommitSelected(commit) ? "red" : "steelblue" }
+                on:mouseenter={evt => {
+                    hoveredIndex = index;
+                    cursor = {x: evt.x, y: evt.y};
+                }}
+                on:mouseleave={evt => hoveredIndex = -1}
+            />
+        {/each}
+    </g>
 </svg>
 <p>{hasSelection ? selectedCommits.length : "No"} commits selected</p>
 

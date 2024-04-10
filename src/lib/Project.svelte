@@ -6,12 +6,14 @@
 </script>
 
 <article>
-  <svelte:element this={"h" + hLevel}>{p.title}</svelte:element>
-  <img src={p.image} alt="" />
-  <div>
-    <p>{p.description}</p>
-    <p>C. {p.year}</p>
-  </div>
+    <a href={p.url}>
+        <svelte:element this={"h" + hLevel}>{p.title}</svelte:element>
+        <img src={p.image} alt="" />
+        <div>
+            <p>{p.description}</p>
+            <p>C. {p.year}</p>
+        </div>
+    </a>
 </article>
 
 <style>
@@ -29,5 +31,10 @@
   p:nth-child(2) {
     font-family: Baskerville;
     font-variant-numeric: oldstyle-nums;
+  }
+
+  a {
+    color: inherit; /* blue colors for links too */
+    text-decoration: inherit; /* no underline */
   }
 </style>
