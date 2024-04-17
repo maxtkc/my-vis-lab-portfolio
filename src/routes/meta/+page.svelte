@@ -12,6 +12,43 @@
   let data = [];
   let commits = [];
 
+  const commit_labels = [
+    "Initial commit",
+    "migrate old site",
+    "make project separate",
+    "whoops add layout",
+    "finish lab 4",
+    "start lab 6",
+    "add pie",
+    "lab 6 finished",
+    "add meta and eloquent",
+    "prettier",
+    "step 0",
+    "add commits stats",
+    "lab 7",
+    "change color of selected",
+    "fp2 mockup",
+    "fix vite issue",
+    "change to corporate buy rate",
+    "make nice",
+    "add stamen copyright",
+    "add ref to bike watching",
+    "0.1",
+    "1.2",
+    "1.4",
+    "move scatterplot",
+    "add file lines",
+    "2.3",
+    "2.4",
+    "colors top level",
+    "animate files",
+    "3.3",
+    "3.4",
+    "finish 3",
+    "finish lab 9",
+    "fix pie transition"
+  ]
+
   onMount(async () => {
     data = await d3.csv("loc.csv", row => ({
       ...row,
@@ -26,7 +63,7 @@
       let {author, date, time, timezone, datetime} = first;
       let ret = {
         id: commit,
-        url: "https://github.com/vis-society/lab-7/commit/" + commit,
+        url: "https://github.com/maxtkc/my-vis-lab-portfolio/commit/" + commit,
         author, date, time, timezone, datetime,
         hourFrac: datetime.getHours() + datetime.getMinutes() / 60,
         totalLines: lines.length
@@ -65,6 +102,7 @@
 
   $: selectedLines = (hasSelection ? selectedCommits : filteredCommits).flatMap(d => d.lines);
   $: languageBreakdown = d3.rollup(selectedLines, lines => lines.length, line => line.type);
+  $: sortedCommits = d3.sort(commits, c => c.datetime);
 </script>
 
 <style>
@@ -124,12 +162,11 @@
 -->
 
 <Scrolly throttle=50 debounce=50 bind:progress={ commitProgress }>
-  {#each commits as commit, index }
+  {#each sortedCommits as commit, index }
     <p>
       On {commit.datetime.toLocaleString("en", {dateStyle: "full", timeStyle: "short"})},
-      I made <a href="{commit.url}" target="_blank">{ index > 0 ? 'another glorious commit' : 'my first commit, and it was glorious' }</a>.
+      I made the change <a href="{commit.url}" target="_blank">{ commit_labels[index] }</a>.
       I edited {commit.totalLines} lines across { d3.rollups(commit.lines, D => D.length, d => d.file).length } files.
-      Then I looked over all I had made, and I saw that it was very good.
     </p>
   {/each}
 
@@ -151,12 +188,11 @@
 </Scrolly>
 
 <Scrolly bind:progress={raceProgress} --scrolly-layout="viz-first" --scrolly-viz-width="1.5fr" throttle=10 debounce=10>
-  {#each commits as commit, index }
+  {#each sortedCommits as commit, index }
     <p>
       On {commit.datetime.toLocaleString("en", {dateStyle: "full", timeStyle: "short"})},
-      I made <a href="{commit.url}" target="_blank">{ index > 0 ? 'another glorious commit' : 'my first commit, and it was glorious' }</a>.
+      I made the change <a href="{commit.url}" target="_blank">{ commit_labels[index] }</a>.
       I edited {commit.totalLines} lines across { d3.rollups(commit.lines, D => D.length, d => d.file).length } files.
-      Then I looked over all I had made, and I saw that it was very good.
     </p>
   {/each}
 
