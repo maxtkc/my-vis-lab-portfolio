@@ -148,6 +148,9 @@
     &:hover {
       transform: scale(1.5);
     }
+    @starting-style {
+      r: 0;
+    }
   }
   dl.info {
     padding: 10px;
@@ -241,11 +244,11 @@
     <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
     <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
     <g class="dots">
-        {#each filteredCommits as commit, index }
+        {#each filteredCommits as commit, index (commit.id) }
             <circle
                 cx={ xScale(commit.datetime) }
                 cy={ yScale(commit.hourFrac) }
-                r="5"
+                r="13"
                 fill={selectedCommits && isCommitSelected(commit) ? "red" : "steelblue" }
                 on:mouseenter={evt => dotInteraction(index, evt)}
                 on:mouseleave={evt => dotInteraction(index, evt)}
