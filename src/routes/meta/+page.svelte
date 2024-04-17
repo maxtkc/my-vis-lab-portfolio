@@ -3,6 +3,7 @@
   import Pie from "$lib/Pie.svelte";
   import CommitScatterplot from "./Scatterplot.svelte";
   import FileLines from "./FileLines.svelte";
+  import Scrolly from "svelte-scrolly";
 
   import { onMount } from "svelte";
 
@@ -45,13 +46,16 @@
   });
 
   let commitProgress = 100;
+  let raceProgress = 100;
   let timeScale;
   $: timeScale = d3.scaleTime([d3.min(commits, c => c.datetime), d3.max(commits, c => c.datetime)], [0, 100]);
   $: commitMaxTime = timeScale.invert(commitProgress);
+  $: raceMaxTime = timeScale.invert(raceProgress);
 
   let filteredCommits, filteredLines;
   $: filteredCommits = commits.filter(commit => commit.datetime <= commitMaxTime);
   $: filteredLines = data.filter(d => d.datetime <= commitMaxTime);
+  $: raceFilteredLines = data.filter(d => d.datetime <= raceMaxTime);
 
   let selectedCommits = [];
 
@@ -64,6 +68,9 @@
 </script>
 
 <style>
+  :global(body) {
+    max-width: min(120ch, 80vw);
+  }
   .timefilter {
     display: grid;
     grid-template-columns: 1fr;
@@ -86,6 +93,8 @@
 </svelte:head>
 
 <h1>Meta</h1>
+
+
 <dl class="stats">
 	<dt>Total <abbr title="Lines of code">LOC</abbr></dt>
 	<dd>{filteredLines.length}</dd>
@@ -105,25 +114,53 @@
 
 <h2>Commits by time of day</h2>
 
+<!--
 <div class="timefilter">
   <label>Filter by time:
     <input type=range min=0 max=100 bind:value={commitProgress} />
   </label>
   <time>{commitMaxTime.toLocaleString(undefined, {dateStyle: "long", timeStyle: "short"})}</time>
 </div>
-
-<FileLines lines={filteredLines} colors={colors} />
-
-<CommitScatterplot commits={filteredCommits} bind:selectedCommits={selectedCommits} />
-
-<p>{hasSelection ? selectedCommits.length : "No"} commits selected</p>
-
-<!--
-<dl class="stats">
-  {#each languageBreakdown as [language, lines] }
-    <dt>{ language }</dt>
-    <dd>{ lines } ({ d3.format(".1~%")(lines / selectedLines.length) })</dd>
-  {/each}
-</dl>
 -->
-<Pie transitionDuration={300} colors={colors} data={Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/>
+
+<Scrolly bind:progress={ commitProgress }>
+  {#each commits as commit, index }
+    <p>
+      On {commit.datetime.toLocaleString("en", {dateStyle: "full", timeStyle: "short"})},
+      I made <a href="{commit.url}" target="_blank">{ index > 0 ? 'another glorious commit' : 'my first commit, and it was glorious' }</a>.
+      I edited {commit.totalLines} lines across { d3.rollups(commit.lines, D => D.length, d => d.file).length } files.
+      Then I looked over all I had made, and I saw that it was very good.
+    </p>
+  {/each}
+
+  <svelte:fragment slot="viz">
+    <CommitScatterplot commits={filteredCommits} bind:selectedCommits={selectedCommits} />
+
+    <p>{hasSelection ? selectedCommits.length : "No"} commits selected</p>
+
+    <!--
+      <dl class="stats">
+      {#each languageBreakdown as [language, lines] }
+        <dt>{ language }</dt>
+        <dd>{ lines } ({ d3.format(".1~%")(lines / selectedLines.length) })</dd>
+      {/each}
+      </dl>
+    -->
+    <Pie transitionDuration={300} colors={colors} data={Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/>
+  </svelte:fragment>
+</Scrolly>
+
+<Scrolly bind:progress={raceProgress} --scrolly-layout="viz-first" --scrolly-viz-width="1.5fr" throttle=10 debounce=10>
+  {#each commits as commit, index }
+    <p>
+      On {commit.datetime.toLocaleString("en", {dateStyle: "full", timeStyle: "short"})},
+      I made <a href="{commit.url}" target="_blank">{ index > 0 ? 'another glorious commit' : 'my first commit, and it was glorious' }</a>.
+      I edited {commit.totalLines} lines across { d3.rollups(commit.lines, D => D.length, d => d.file).length } files.
+      Then I looked over all I had made, and I saw that it was very good.
+    </p>
+  {/each}
+
+  <svelte:fragment slot="viz">
+    <FileLines lines={raceFilteredLines} colors={colors} />
+  </svelte:fragment>
+</Scrolly>
