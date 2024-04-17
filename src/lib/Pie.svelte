@@ -1,6 +1,7 @@
 <script>
   import * as d3 from "d3";
 
+  export let colors = d3.scaleOrdinal(d3.schemeTableau10);
   export let data = [];
   export let selectedIndex = -1;
 
@@ -15,7 +16,6 @@
 
   let arcGenerator = d3.arc().innerRadius(0).outerRadius(50);
   let sliceGenerator = d3.pie().value((d) => d.value);
-  let colors = d3.scaleOrdinal(d3.schemeTableau10);
 </script>
 
 <div class="container">
@@ -23,7 +23,7 @@
     {#each pieData as d, index}
       <path
         d={d.arc}
-        fill={colors(d.label)}
+        fill={colors(d.id ?? d.label)}
         tabindex="0"
         role="button"
         aria-label="foo"
@@ -34,7 +34,7 @@
   </svg>
   <ul class="legend">
     {#each pieData as d, index}
-      <li style="--color: {colors(d.label)}">
+      <li style="--color: {colors(d.id ?? d.label)}">
         <span class="swatch"></span>
         {d.label} <em>({d.value})</em>
       </li>

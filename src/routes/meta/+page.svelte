@@ -6,6 +6,8 @@
 
   import { onMount } from "svelte";
 
+  let colors = d3.scaleOrdinal(d3.schemeTableau10);
+
   let data = [];
   let commits = [];
 
@@ -110,8 +112,6 @@
   <time>{commitMaxTime.toLocaleString(undefined, {dateStyle: "long", timeStyle: "short"})}</time>
 </div>
 
-<FileLines lines={filteredLines} />
-
 <CommitScatterplot commits={filteredCommits} bind:selectedCommits={selectedCommits} />
 
 <p>{hasSelection ? selectedCommits.length : "No"} commits selected</p>
@@ -123,4 +123,6 @@
   {/each}
 </dl>
 
-<Pie data={Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/>
+<Pie colors={colors} data={Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/>
+
+<FileLines lines={filteredLines} colors={colors} />

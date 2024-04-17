@@ -1,6 +1,8 @@
 <script>
   import * as d3 from "d3";
+  import { scale } from 'svelte/transition';
 
+  export let colors = d3.scaleOrdinal(d3.schemeTableau10);
   export let lines = [];
 
   let files = [];
@@ -10,8 +12,6 @@
     });
     files = d3.sort(files, d => -d.lines.length);
   }
-
-  let colors = d3.scaleOrdinal(d3.schemeTableau10);
 </script>
 
 <style>
@@ -50,7 +50,7 @@
       </dt>
       <dd>
         {#each file.lines as line (line.line) }
-          <div class="line" style="--color: { colors(line.type) }"></div>
+          <div in:scale class="line" style="--color: { colors(line.type) }"></div>
         {/each}
       </dd>
     </div>
