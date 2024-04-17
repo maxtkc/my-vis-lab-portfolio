@@ -10,6 +10,8 @@
     });
     files = d3.sort(files, d => -d.lines.length);
   }
+
+  let colors = d3.scaleOrdinal(d3.schemeTableau10);
 </script>
 
 <style>
@@ -35,7 +37,7 @@
     display: flex;
     width: .5em;
     aspect-ratio: 1;
-    background: steelblue;
+    background: var(--color);
     border-radius: 50%;
   }
 </style>
@@ -48,7 +50,7 @@
       </dt>
       <dd>
         {#each file.lines as line (line.line) }
-          <div class="line"></div>
+          <div class="line" style="--color: { colors(line.type) }"></div>
         {/each}
       </dd>
     </div>
