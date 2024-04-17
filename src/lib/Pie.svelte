@@ -6,6 +6,64 @@
   export let selectedIndex = -1;
   export let transitionDuration = 3000;
 
+  function getEmptyArc (label, data = pieData) {
+    // Union of old and new labels in the order they appear
+    let labels = d3.sort(new Set([...oldData, ...pieData].map(d => d.label)));
+    let labelIndex = labels.indexOf(label);
+    let sibling;
+    for (let i = labelIndex - 1; i >= 0; i--) {
+      sibling = data.find(d => d.label === labels[i]);
+      if (sibling) {
+        break;
+      }
+    }
+
+    let angle = sibling?.endAngle ?? 0;
+    return {startAngle: angle, endAngle: angle};
+  }
+
+  function sameArc(a, b) {
+    return ((!a && !b) || (a?.startAngle == b?.startAngle && a?.endAngle == b?.endAngle))
+  }
+
+  function transitionArc (wedge, label) {
+    label ??= Object.entries(wedges).find(([label, w]) => w === wedge)[0];
+    // Calculations that will only be done once per element go here
+    let d = pieData.find(d => d.label === label);
+    let d_old = oldData.find(d => d.label === label);
+    if (sameArc(d_old, d)) {
+      return null;
+    }
+    // if (!d || !d_old) {
+    //   return;
+    // }
+    // Always clone objects first, see note in https://d3js.org/d3-interpolate/value#interpolateObject
+    let from = d_old ? {...d_old} : getEmptyArc(label, oldData);
+    let to = {...d};
+    let angleInterpolator = d3.interpolate(from, to);
+    let interpolator = t => `path("${ arcGenerator(angleInterpolator(t)) }")`;
+    let type = d ? d_old ? "update" : "in" : "out";
+    // return t => {
+    //   // t is a number between 0 and 1 that represents the transition progress
+    //   // TODO Interpolate the angles and return the path string that corresponds to t
+    //   return interpolator(t);
+    // };
+    return {d, d_old, from, to, interpolator, type};
+  }
+
+  function arc (wedge) {
+    // Calculations that will only be done once per element go here
+    return {
+      duration: transitionDuration,
+      css: (t, u) => {
+        // t is a number between 0 and 1 that represents the transition progress; u is 1 - t
+        // TODO return CSS to be applied for the current t as a string
+        let transition = transitionArc(wedge);
+        return transition?.interpolator(transition.type === "out" ? u : t);
+      }
+    }
+  }
+
   let pieData, oldData;
   $: {
     let arcs, arcData;
@@ -30,23 +88,9 @@
       .duration(transitionDuration)
       .styleTween("d", function (_, index) {
         let wedge = this;
-        // Calculations that will only be done once per element go here
         let label = Object.keys(wedges)[index];
-        let d = pieData.find(d => d.label === label);
-        let d_old = oldData.find(d => d.label === label);
-        if (!d || !d_old) {
-          return;
-        }
-        // Always clone objects first, see note in https://d3js.org/d3-interpolate/value#interpolateObject
-        let from = {...d_old};
-        let to = {...d};
-        let angleInterpolator = d3.interpolate(from, to);
-        let interpolator = t => `path("${ arcGenerator(angleInterpolator(t)) }")`;
-        return t => {
-          // t is a number between 0 and 1 that represents the transition progress
-          // TODO Interpolate the angles and return the path string that corresponds to t
-          return interpolator(t);
-        };
+        let transition = transitionArc(wedge, label);
+        return transition?.interpolator;
       });
   }
 </script>
@@ -55,6 +99,7 @@
   <svg viewBox="-50 -50 100 100">
     {#each pieData as d, index (d.label)}
       <path
+        transition:arc
         d={d.arc}
         fill={colors(d.id ?? d.label)}
         tabindex="0"
