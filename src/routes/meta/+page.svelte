@@ -123,7 +123,7 @@
 </div>
 -->
 
-<Scrolly bind:progress={ commitProgress }>
+<Scrolly throttle=50 debounce=50 bind:progress={ commitProgress }>
   {#each commits as commit, index }
     <p>
       On {commit.datetime.toLocaleString("en", {dateStyle: "full", timeStyle: "short"})},

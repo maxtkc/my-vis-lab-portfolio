@@ -60,7 +60,6 @@
         // t is a number between 0 and 1 that represents the transition progress; u is 1 - t
         // TODO return CSS to be applied for the current t as a string
         let transition = transitionArc(wedge);
-        console.log(transition);
         return transition?.interpolator(transition.type === "out" ? u : t);
       }
     }
