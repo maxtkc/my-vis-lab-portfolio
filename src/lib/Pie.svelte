@@ -55,10 +55,12 @@
     // Calculations that will only be done once per element go here
     return {
       duration: transitionDuration,
+      easing: d3.easeCubic,
       css: (t, u) => {
         // t is a number between 0 and 1 that represents the transition progress; u is 1 - t
         // TODO return CSS to be applied for the current t as a string
         let transition = transitionArc(wedge);
+        console.log(transition);
         return transition?.interpolator(transition.type === "out" ? u : t);
       }
     }
@@ -86,6 +88,7 @@
 
     d3.selectAll(wedgeElements).transition("arc")
       .duration(transitionDuration)
+      // .ease(d3.easeLinear)
       .styleTween("d", function (_, index) {
         let wedge = this;
         let label = Object.keys(wedges)[index];

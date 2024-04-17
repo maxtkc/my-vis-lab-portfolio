@@ -126,4 +126,4 @@
   {/each}
 </dl>
 -->
-<Pie colors={colors} data={Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/>
+<Pie transitionDuration={300} colors={colors} data={Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/>
