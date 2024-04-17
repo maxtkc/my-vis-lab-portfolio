@@ -2,6 +2,7 @@
   import * as d3 from "d3";
   import Pie from "$lib/Pie.svelte";
   import CommitScatterplot from "./Scatterplot.svelte";
+  import FileLines from "./FileLines.svelte";
 
   import { onMount } from "svelte";
 
@@ -48,7 +49,7 @@
 
   let filteredCommits, filteredLines;
   $: filteredCommits = commits.filter(commit => commit.datetime <= commitMaxTime);
-  $: filteredLines = data.filter(d => d.commit.datetime <= commitMaxTime);
+  $: filteredLines = data.filter(d => d.datetime <= commitMaxTime);
 
   let selectedCommits = [];
 
@@ -108,6 +109,8 @@
   </label>
   <time>{commitMaxTime.toLocaleString(undefined, {dateStyle: "long", timeStyle: "short"})}</time>
 </div>
+
+<FileLines lines={filteredLines} />
 
 <CommitScatterplot commits={filteredCommits} bind:selectedCommits={selectedCommits} />
 
