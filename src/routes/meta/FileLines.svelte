@@ -1,6 +1,7 @@
 <script>
   import * as d3 from "d3";
   import { scale } from 'svelte/transition';
+  import { flip as originalFlip } from "svelte/animate";
 
   export let colors = d3.scaleOrdinal(d3.schemeTableau10);
   export let lines = [];
@@ -12,6 +13,11 @@
     });
     files = d3.sort(files, d => -d.lines.length);
   }
+
+  function getFlip () {
+    return originalFlip;
+  }
+  $: flip = getFlip(files);
 </script>
 
 <style>
@@ -44,7 +50,7 @@
 
 <dl class="files">
   {#each files as file (file.name) }
-    <div>
+    <div animate:flip>
       <dt>
       <code>{file.name}</code>
       </dt>

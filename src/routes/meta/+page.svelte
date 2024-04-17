@@ -112,6 +112,8 @@
   <time>{commitMaxTime.toLocaleString(undefined, {dateStyle: "long", timeStyle: "short"})}</time>
 </div>
 
+<FileLines lines={filteredLines} colors={colors} />
+
 <CommitScatterplot commits={filteredCommits} bind:selectedCommits={selectedCommits} />
 
 <p>{hasSelection ? selectedCommits.length : "No"} commits selected</p>
@@ -124,5 +126,3 @@
 </dl>
 
 <Pie colors={colors} data={Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/>
-
-<FileLines lines={filteredLines} colors={colors} />
