@@ -40,6 +40,15 @@
     });
   });
 
+  let commitProgress = 100;
+  let timeScale;
+  $: timeScale = d3.scaleTime([d3.min(commits, c => c.datetime), d3.max(commits, c => c.datetime)], [0, 100]);
+  $: commitMaxTime = timeScale.invert(commitProgress);
+
+  let filteredCommits, filteredLines;
+  $: filteredCommits = commits.filter(commit => commit.datetime <= commitMaxTime);
+  $: filteredLines = data.filter(d => d.commit.datetime <= commitMaxTime);
+
   let width = 1000, height = 600;
   let margin = {top: 10, right: 10, bottom: 30, left: 20};
 
@@ -53,7 +62,7 @@
   usableArea.height = usableArea.bottom - usableArea.top;
 
   let xScale, yScale;
-  $: xScale = d3.scaleTime(d3.extent(commits, commit => commit.date), [usableArea.left, usableArea.right]).nice();
+  $: xScale = d3.scaleTime(d3.extent(filteredCommits, commit => commit.date), [usableArea.left, usableArea.right]).nice();
   $: yScale = d3.scaleLinear([0, 24], [usableArea.bottom, usableArea.top])
 
   let xAxis, yAxis;
@@ -76,7 +85,7 @@
   }
 
   let hoveredIndex = -1;
-  $: hoveredCommit = commits[hoveredIndex] ?? {};
+  $: hoveredCommit = filteredCommits[hoveredIndex] ?? {};
 
   let cursor = {x: 0, y: 0};
 
@@ -88,7 +97,7 @@
 
   function brushed (evt) {
     let brushSelection = evt.selection;
-    selectedCommits = !brushSelection ? [] : commits.filter(commit => {
+    selectedCommits = !brushSelection ? [] : filteredCommits.filter(commit => {
       let min = {x: brushSelection[0][0], y: brushSelection[0][1]};
       let max = {x: brushSelection[1][0], y: brushSelection[1][1]};
       let x = xScale(commit.date);
@@ -108,7 +117,7 @@
 
   let selectedLines, languageBreakdown;
 
-  $: selectedLines = (hasSelection ? selectedCommits : commits).flatMap(d => d.lines);
+  $: selectedLines = (hasSelection ? selectedCommits : filteredCommits).flatMap(d => d.lines);
   $: languageBreakdown = d3.rollup(selectedLines, lines => lines.length, line => line.type);
 
   function dotInteraction (index, evt) {
@@ -161,6 +170,22 @@
     top: 1em;
     left: 1em;
   }
+
+  .timefilter {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .timefilter label {
+    display: flex;
+    gap: 1em;
+  }
+  .timefilter label input {
+    flex: 1;
+  }
+  .timefilter time {
+    flex: 1;
+    text-align: right;
+  }
 </style>
 
 <svelte:head>
@@ -170,22 +195,29 @@
 <h1>Meta</h1>
 <dl class="stats">
 	<dt>Total <abbr title="Lines of code">LOC</abbr></dt>
-	<dd>{data.length}</dd>
+	<dd>{filteredLines.length}</dd>
 
 	<dt>Total number of commits</dt>
-	<dd>{commits.length}</dd>
+	<dd>{filteredCommits.length}</dd>
 
 	<dt>Number of files in the codebase</dt>
-  <dd>{d3.group(data, d => d.file).size}</dd>
+  <dd>{d3.group(filteredLines, d => d.file).size}</dd>
 
 	<dt>Maximum file length (in lines)</dt>
-  <dd>{d3.max(data, d => d.line)}</dd>
+  <dd>{d3.max(filteredLines, d => d.line)}</dd>
 
 	<dt>Longest file</dt>
-  <dd>{d3.greatest(data, d => d.line)?.file}</dd>
+  <dd>{d3.greatest(filteredLines, d => d.line)?.file}</dd>
 </dl>
 
 <h2>Commits by time of day</h2>
+
+<div class="timefilter">
+  <label>Filter by time:
+    <input type=range min=0 max=100 bind:value={commitProgress} />
+  </label>
+  <time>{commitMaxTime.toLocaleString(undefined, {dateStyle: "long", timeStyle: "short"})}</time>
+</div>
 
 <dl id="commit-tooltip" class="info tooltip" hidden={hoveredIndex === -1} style="top: {cursor.y}px; left: {cursor.x}px">
 	<dt>Commit</dt>
@@ -209,7 +241,7 @@
     <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
     <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
     <g class="dots">
-        {#each commits as commit, index }
+        {#each filteredCommits as commit, index }
             <circle
                 cx={ xScale(commit.datetime) }
                 cy={ yScale(commit.hourFrac) }
