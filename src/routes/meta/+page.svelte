@@ -80,23 +80,22 @@
 
   let cursor = {x: 0, y: 0};
 
-  let brushSelection;
+  let selectedCommits = [];
 
   function isCommitSelected (commit) {
-    if (!brushSelection) {
-      return false;
-    }
-    // TODO return true if commit is within brushSelection
-    // and false if not
-    let min = {x: brushSelection[0][0], y: brushSelection[0][1]};
-    let max = {x: brushSelection[1][0], y: brushSelection[1][1]};
-    let x = xScale(commit.date);
-    let y = yScale(commit.hourFrac);
-    return x >= min.x && x <= max.x && y >= min.y && y <= max.y;
+    return selectedCommits.includes(commit);
   }
 
   function brushed (evt) {
-    brushSelection = evt.selection;
+    let brushSelection = evt.selection;
+    selectedCommits = !brushSelection ? [] : commits.filter(commit => {
+      let min = {x: brushSelection[0][0], y: brushSelection[0][1]};
+      let max = {x: brushSelection[1][0], y: brushSelection[1][1]};
+      let x = xScale(commit.date);
+      let y = yScale(commit.hourFrac);
+
+      return x >= min.x && x <= max.x && y >= min.y && y <= max.y;
+    });
   }
 
   let svg;
@@ -105,13 +104,25 @@
     d3.select(svg).selectAll(".dots, .overlay ~ *").raise();
   }
 
-  $: selectedCommits = brushSelection ? commits.filter(isCommitSelected) : [];
-  $: hasSelection = brushSelection && selectedCommits.length > 0;
+  $: hasSelection = selectedCommits.length > 0;
 
   let selectedLines, languageBreakdown;
 
   $: selectedLines = (hasSelection ? selectedCommits : commits).flatMap(d => d.lines);
   $: languageBreakdown = d3.rollup(selectedLines, lines => lines.length, line => line.type);
+
+  function dotInteraction (index, evt) {
+    if (evt.type === "mouseenter" || evt.type === "focus") {
+      hoveredIndex = index;
+      cursor = {x: evt.x, y: evt.y};
+    }
+    else if (evt.type === "mouseleave" || evt.type === "blur") {
+      hoveredIndex = -1
+    }
+    else if (evt.type === "click" || (evt.type === "keyup" && evt.key === "Enter")) {
+      selectedCommits = [commits[index]];
+    }
+  }
 </script>
 
 <style>
@@ -203,12 +214,11 @@
                 cx={ xScale(commit.datetime) }
                 cy={ yScale(commit.hourFrac) }
                 r="5"
-                fill={isCommitSelected(commit) ? "red" : "steelblue" }
-                on:mouseenter={evt => {
-                    hoveredIndex = index;
-                    cursor = {x: evt.x, y: evt.y};
-                }}
-                on:mouseleave={evt => hoveredIndex = -1}
+                fill={selectedCommits && isCommitSelected(commit) ? "red" : "steelblue" }
+                on:mouseenter={evt => dotInteraction(index, evt)}
+                on:mouseleave={evt => dotInteraction(index, evt)}
+                on:click={evt => dotInteraction(index, evt)}
+                on:keyup={evt => dotInteraction(index, evt)}
             />
         {/each}
     </g>
