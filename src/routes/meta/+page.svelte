@@ -118,11 +118,12 @@
 
 <p>{hasSelection ? selectedCommits.length : "No"} commits selected</p>
 
+<!--
 <dl class="stats">
   {#each languageBreakdown as [language, lines] }
     <dt>{ language }</dt>
     <dd>{ lines } ({ d3.format(".1~%")(lines / selectedLines.length) })</dd>
   {/each}
 </dl>
-
+-->
 <Pie colors={colors} data={Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/>
